@@ -27,8 +27,10 @@ test('Waveflow API Integration Tests', async (t) => {
       body: JSON.stringify({ email: uniqueEmail, password: 'password' })
     });
     assert.strictEqual(res.status, 200);
-    cookie = res.headers.get('set-cookie');
-    assert.ok(cookie);
+    const setCookieHeader = res.headers.get('set-cookie');
+    assert.ok(setCookieHeader);
+    const match = setCookieHeader.match(/(session=[^;]+)/);
+    cookie = match ? match[1] : setCookieHeader;
   });
 
   await t.test('GET /api/me', async () => {
