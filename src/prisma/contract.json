@@ -27,6 +27,13 @@
         "models": {
           "Project": {
             "fields": {
+              "ciStatus": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -35,6 +42,13 @@
                 }
               },
               "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "githubRepo": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
@@ -112,11 +126,17 @@
             },
             "storage": {
               "fields": {
+                "ciStatus": {
+                  "column": "ciStatus"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
                 "description": {
                   "column": "description"
+                },
+                "githubRepo": {
+                  "column": "githubRepo"
                 },
                 "id": {
                   "column": "id"
@@ -504,6 +524,11 @@
           "table": {
             "project": {
               "columns": {
+                "ciStatus": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -514,6 +539,11 @@
                   "nullable": false
                 },
                 "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "githubRepo": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": true
@@ -879,7 +909,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "2e3ce95572122f9a755a5a4e0b98570836ae92113e67de19f87b07b35b0b3ca5"
+    "storageHash": "194dde14bd64363e29f891063d15a0de38400cc089128d90baecb1a25cfbf4a3"
   },
   "capabilities": {
     "postgres": {

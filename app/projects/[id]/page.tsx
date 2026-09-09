@@ -88,15 +88,54 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
             <div className="card">
               <h3>GitHub Integration</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.5rem', marginBottom: '1rem' }}>
-                Not connected. Link a repository to view pull requests and issues.
+                Link a repository to track its CI/CD status.
               </p>
-              <button className="btn btn-outline" disabled>Connect GitHub (Coming Soon)</button>
+              
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  placeholder="owner/repo" 
+                  defaultValue={project.githubRepo || ""}
+                  id="repoInput"
+                />
+                <button className="btn btn-outline" onClick={async () => {
+                  const val = (document.getElementById('repoInput') as HTMLInputElement).value;
+                  const res = await fetch(`/api/projects/${project.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ githubRepo: val })
+                  });
+                  if (res.ok) setProject({ ...project, githubRepo: val });
+                }}>Save</button>
+              </div>
             </div>
             <div className="card">
               <h3>CI/CD Status</h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
-                <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--text-muted)' }}></span>
-                <span>Not connected</span>
+                {(() => {
+                  if (!project.ciStatus) {
+                    return (
+                      <>
+                        <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--text-muted)' }}></span>
+                        <span>CI/CD Not Connected</span>
+                      </>
+                    );
+                  }
+
+                  let color = 'var(--text-muted)';
+                  if (project.ciStatus === 'SUCCESS') color = '#10b981';
+                  else if (project.ciStatus === 'FAILED') color = 'var(--danger-color)';
+                  else if (project.ciStatus === 'RUNNING') color = '#3b82f6';
+                  else if (project.ciStatus === 'QUEUED') color = '#f59e0b';
+
+                  return (
+                    <>
+                      <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: color }}></span>
+                      <span style={{ fontWeight: 500 }}>{project.ciStatus}</span>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>

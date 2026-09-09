@@ -15,6 +15,15 @@ jobs:
       SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
 
     steps:
+    - name: Notify Waveflow CI RUNNING
+      if: vars.WAVEFLOW_URL != ''
+      run: |
+        curl -s -X POST "${{ vars.WAVEFLOW_URL }}/api/ci/webhook" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.CI_WEBHOOK_SECRET }}" \
+          -d "{\"repoUrl\":\"${{ github.repository }}\",\"status\":\"RUNNING\"}" \
+          --fail || echo "Failed to notify Waveflow"
+
     - name: Checkout repository
       uses: actions/checkout@v4
     
@@ -41,3 +50,16 @@ jobs:
       
     - name: Run build
       run: npm run build
+
+    - name: Notify Waveflow CI Completion
+      if: always() && vars.WAVEFLOW_URL != ''
+      run: |
+        STATUS="FAILED"
+        if [ "${{ job.status }}" = "success" ]; then
+          STATUS="SUCCESS"
+        fi
+        curl -s -X POST "${{ vars.WAVEFLOW_URL }}/api/ci/webhook" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.CI_WEBHOOK_SECRET }}" \
+          -d "{\"repoUrl\":\"${{ github.repository }}\",\"status\":\"$STATUS\"}" \
+          --fail || echo "Failed to notify Waveflow"

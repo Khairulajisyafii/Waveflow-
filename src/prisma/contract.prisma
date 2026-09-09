@@ -19,6 +19,8 @@ model Project {
   description String?
   createdAt   TimestamptzString @default(now())
   ownerId     Int
+  githubRepo  String?
+  ciStatus    String?
 
   owner       User            @relation(fields: [ownerId], references: [id])
   members     ProjectMember[]
