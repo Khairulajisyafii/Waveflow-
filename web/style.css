@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: #F2EFE7;
+  color: #3368A0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden; /* Hide scrollbars for the waves */
+}
+
+/* --- Animated Wave Background --- */
+.wave-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 35vh;
+  z-index: -1;
+}
+
+.waves {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+  max-height: 300px;
+}
+
+.parallax > use {
+  animation: move-forever 25s cubic-bezier(.55, .5, .45, .5) infinite;
+}
+.parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
+.parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
+.parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
+.parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
+
+@keyframes move-forever {
+  0% { transform: translate3d(-90px, 0, 0); }
+  100% { transform: translate3d(85px, 0, 0); }
+}
+
+/* --- Navigation --- */
+.section.head {
+  padding: 30px 0;
+}
+
+.nav {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.nav ul {
+  display: flex;
+  list-style: none;
+  gap: 40px;
+}
+
+.nav ul li {
+  color: #66A3BF;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav ul li:hover {
+  color: #3368A0;
+}
+
+/* --- Login Card --- */
+.section.body {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 1;
+  margin-bottom: 50px; /* Offset for waves */
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(200, 223, 219, 0.6);
+  border-radius: 24px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 15px 35px rgba(51, 104, 160, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.card > p {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #3368A0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.input-group p {
+  font-size: 13px;
+  color: #66A3BF;
+  font-weight: 500;
+  margin-left: 5px;
+  text-transform: lowercase;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 2px solid rgba(200, 223, 219, 0.5); /* #C8DFDB */
+  background-color: rgba(242, 239, 231, 0.3); /* #F2EFE7 */
+  color: #3368A0;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-group input::placeholder {
+  color: #A0C0C0;
+  font-weight: 300;
+}
+
+.input-group input:focus {
+  border-color: #66A3BF;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(102, 163, 191, 0.1);
+}
+
+/* --- Bottom Actions --- */
+.card-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.button.send {
+  background-color: #66A3BF;
+  color: white;
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 163, 191, 0.25);
+}
+
+.button.send:hover {
+  background-color: #3368A0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(51, 104, 160, 0.3);
+}
+
+.button.send p {
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.signup {
+  color: #66A3BF;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  font-weight: 500;
+  text-transform: lowercase;
+}
+
+.signup:hover {
+  color: #3368A0;
+  text-decoration: underline;
+}
+
+/* --- Footer --- */
+.section.footer {
+  padding: 20px;
+  text-align: center;
+  z-index: 1;
+}
+
+.watermark {
+  font-size: 12px;
+  color: #F2EFE7;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* Adjust watermark color based on screen height so it shows over light/dark areas properly */
+@media (max-height: 700px) {
+  .watermark {
+    color: #3368A0;
+  }
+}

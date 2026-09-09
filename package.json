@@ -1,0 +1,36 @@
+{
+  "dependencies": {
+    "@prisma/client": "^7.10.0",
+    "@prisma/orm-postgres": "^8.0.0-rc.8",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
+    "idb": "^8.0.3",
+    "jose": "^6.2.12",
+    "next": "^16.3.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "scripts": {
+    "postinstall": "prisma skills sync || exit 0",
+    "contract:emit": "prisma contract emit",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node --test __tests__/**/*.test.cjs",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@prisma/cli-engine": "^0.2.3",
+    "@types/node": "^26.4.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@typescript-eslint/eslint-plugin": "^8.70.0",
+    "@typescript-eslint/parser": "^8.70.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "prisma": "^8.0.0-rc.10",
+    "typescript": "5.9.3"
+  },
+  "type": "module"
+}

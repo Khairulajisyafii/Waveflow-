@@ -1,0 +1,7 @@
+node_modules
+.next
+migrations
+src/prisma/contract.json
+src/prisma/contract.d.ts
+__tests__
+test-api.js
