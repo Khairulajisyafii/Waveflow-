@@ -10,6 +10,9 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("board");
+  const [repoInput, setRepoInput] = useState("");
+  const [savingRepo, setSavingRepo] = useState(false);
+  const [repoMessage, setRepoMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -22,6 +25,7 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
         }
         const data = await res.json();
         setProject(data);
+        setRepoInput(data.githubRepo || "");
       } catch (err) {
         console.error(err);
       } finally {
@@ -31,6 +35,41 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
     
     fetchProject();
   }, [params.id, router]);
+
+  const handleSaveRepo = async () => {
+    setRepoMessage(null);
+    const trimmedVal = repoInput.trim();
+    
+    if (!trimmedVal) {
+      setRepoMessage({ type: 'error', text: 'Repository cannot be empty' });
+      return;
+    }
+    
+    if (!/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(trimmedVal)) {
+      setRepoMessage({ type: 'error', text: 'Format must be owner/repo' });
+      return;
+    }
+
+    setSavingRepo(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ githubRepo: trimmedVal })
+      });
+      
+      if (res.ok) {
+        setProject({ ...project, githubRepo: trimmedVal });
+        setRepoMessage({ type: 'success', text: 'Repository saved successfully!' });
+      } else {
+        setRepoMessage({ type: 'error', text: 'Failed to save repository.' });
+      }
+    } catch {
+      setRepoMessage({ type: 'error', text: 'An unexpected error occurred.' });
+    } finally {
+      setSavingRepo(false);
+    }
+  };
 
   if (loading) {
     return <main className="container"><p>Loading project...</p></main>;
@@ -91,24 +130,33 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
                 Link a repository to track its CI/CD status.
               </p>
               
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <input 
                   type="text" 
                   className="form-input" 
                   placeholder="owner/repo" 
-                  defaultValue={project.githubRepo || ""}
-                  id="repoInput"
+                  value={repoInput}
+                  onChange={(e) => setRepoInput(e.target.value)}
+                  disabled={savingRepo}
                 />
-                <button className="btn btn-outline" onClick={async () => {
-                  const val = (document.getElementById('repoInput') as HTMLInputElement).value;
-                  const res = await fetch(`/api/projects/${project.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ githubRepo: val })
-                  });
-                  if (res.ok) setProject({ ...project, githubRepo: val });
-                }}>Save</button>
+                <button 
+                  className="btn btn-outline" 
+                  onClick={handleSaveRepo}
+                  disabled={savingRepo}
+                >
+                  {savingRepo ? 'Saving...' : 'Save'}
+                </button>
               </div>
+              
+              {repoMessage && (
+                <p style={{ 
+                  fontSize: '0.875rem', 
+                  color: repoMessage.type === 'error' ? 'var(--danger-color)' : '#10b981',
+                  marginTop: '0.5rem'
+                }}>
+                  {repoMessage.text}
+                </p>
+              )}
             </div>
             <div className="card">
               <h3>CI/CD Status</h3>
