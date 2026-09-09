@@ -32,7 +32,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
+    const sessionSecret = process.env.SESSION_SECRET;
+    if (!sessionSecret) {
+      console.error("SESSION_SECRET is not configured or is empty.");
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
+    const secret = new TextEncoder().encode(sessionSecret);
 
     const token = await new SignJWT({
       userId: user.id,

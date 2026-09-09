@@ -12,7 +12,12 @@ export async function verifySession(request: Request): Promise<number | null> {
       return null;
     }
 
-    const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
+    const sessionSecret = process.env.SESSION_SECRET;
+    if (!sessionSecret) {
+      console.error("SESSION_SECRET is not configured or is empty in verifySession.");
+      return null;
+    }
+    const secret = new TextEncoder().encode(sessionSecret);
     const { payload } = await jwtVerify(session, secret);
     
     if (payload && payload.userId) {
