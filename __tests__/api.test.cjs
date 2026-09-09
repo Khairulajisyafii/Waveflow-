@@ -3,7 +3,7 @@ const assert = require('node:assert');
 require('dotenv').config();
 
 const BASE_URL = 'http://localhost:3000';
-const WEBHOOK_SECRET = process.env.CI_WEBHOOK_SECRET || 'my_super_secret_token';
+const WEBHOOK_SECRET = process.env.CI_WEBHOOK_SECRET;
 
 test('Waveflow API Integration Tests', async (t) => {
   let cookie;
