@@ -1,69 +1,99 @@
-name: CI
+name: CI/CD Workflow
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build:
+  validate-and-deploy:
     runs-on: ubuntu-latest
-    
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-      CI_WEBHOOK_SECRET: ${{ secrets.CI_WEBHOOK_SECRET }}
 
     steps:
-    - name: Notify Waveflow CI RUNNING
-      if: vars.WAVEFLOW_URL != ''
-      run: |
-        curl -s -X POST "${{ vars.WAVEFLOW_URL }}/api/ci/webhook" \
-          -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${{ secrets.CI_WEBHOOK_SECRET }}" \
-          -d "{\"repoUrl\":\"${{ github.repository }}\",\"status\":\"RUNNING\"}" \
-          --fail || echo "Failed to notify Waveflow"
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run Prisma migrations
-      run: npx prisma db migrate --yes
-      
-    - name: Run lint
-      run: npm run lint
-      
-    - name: Run tests
-      run: |
-        npm run dev &
-        # Wait for Next.js dev server to be ready
-        for i in {1..30}; do
-          curl -s http://127.0.0.1:3000 > /dev/null && break
-          sleep 2
-        done
-        npm test
-      
-    - name: Run build
-      run: npm run build
+      - name: Notify Waveflow - RUNNING
+        run: |
+          curl -sS -X POST "${{ secrets.WAVEFLOW_WEBHOOK_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.WAVEFLOW_WEBHOOK_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "repoUrl": "Khairulajisyafii/testweb",
+              "status": "RUNNING"
+            }'
 
-    - name: Notify Waveflow CI Completion
-      if: always() && vars.WAVEFLOW_URL != ''
-      run: |
-        STATUS="FAILED"
-        if [ "${{ job.status }}" = "success" ]; then
-          STATUS="SUCCESS"
-        fi
-        curl -s -X POST "${{ vars.WAVEFLOW_URL }}/api/ci/webhook" \
-          -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${{ secrets.CI_WEBHOOK_SECRET }}" \
-          -d "{\"repoUrl\":\"${{ github.repository }}\",\"status\":\"$STATUS\"}" \
-          --fail || echo "Failed to notify Waveflow"
+      - name: Validate index.html exists
+        run: |
+          if [ ! -f index.html ]; then
+            echo "Error: index.html not found!"
+            exit 1
+          fi
+
+      - name: Install HTML Validator
+        run: npm install -g htmlhint
+
+      - name: Validate HTML
+        run: htmlhint index.html
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Link Vercel Project
+        run: |
+          vercel link \
+            --yes \
+            --project "${{ secrets.VERCEL_PROJECT_ID }}" \
+            --scope "${{ secrets.VERCEL_ORG_ID }}" \
+            --token "${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Pull Vercel Environment Information
+        run: |
+          vercel pull \
+            --yes \
+            --environment=production \
+            --token "${{ secrets.VERCEL_TOKEN }}"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build Project Artifacts
+        run: |
+          vercel build \
+            --prod \
+            --token "${{ secrets.VERCEL_TOKEN }}"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy Project Artifacts to Vercel
+        run: |
+          vercel deploy \
+            --prebuilt \
+            --prod \
+            --token "${{ secrets.VERCEL_TOKEN }}"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Notify Waveflow - SUCCESS
+        if: success()
+        run: |
+          curl -sS -X POST "${{ secrets.WAVEFLOW_WEBHOOK_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.WAVEFLOW_WEBHOOK_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "repoUrl": "Khairulajisyafii/testweb",
+              "status": "SUCCESS"
+            }'
+
+      - name: Notify Waveflow - FAILED
+        if: failure()
+        run: |
+          curl -sS -X POST "${{ secrets.WAVEFLOW_WEBHOOK_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.WAVEFLOW_WEBHOOK_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "repoUrl": "Khairulajisyafii/testweb",
+              "status": "FAILED"
+            }'
