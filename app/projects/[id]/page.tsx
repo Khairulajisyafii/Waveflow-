@@ -352,7 +352,7 @@ jobs:
       - name: Update CI Status to Waveflow
         if: always()
         run: |
-          curl -X POST \${typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com'}/api/ci/webhook \\
+          curl -X POST ${typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com'}/api/ci/webhook \\
             -H "Content-Type: application/json" \\
             -d '{
               "secret": "${project.webhookToken || 'YOUR_UNIQUE_WEBHOOK_TOKEN'}",
