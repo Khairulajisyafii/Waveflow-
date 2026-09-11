@@ -75,6 +75,13 @@
                   "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
+              },
+              "webhookToken": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
@@ -146,6 +153,9 @@
                 },
                 "ownerId": {
                   "column": "ownerId"
+                },
+                "webhookToken": {
+                  "column": "webhookToken"
                 }
               },
               "namespaceId": "public",
@@ -576,6 +586,11 @@
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
                   "nullable": false
+                },
+                "webhookToken": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 }
               },
               "foreignKeys": [
@@ -611,7 +626,13 @@
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "webhookToken"
+                  ]
+                }
+              ]
             },
             "projectMember": {
               "columns": {
@@ -924,7 +945,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d7739665fb6b2960294e06c8f93e4ed269ca7a5c56bfc97d6c8d5a0e91c0a9b8"
+    "storageHash": "bcf83432ae3ff8e4f022329c860c98fd8237153797d52b97b54632e3b446076b"
   },
   "capabilities": {
     "postgres": {

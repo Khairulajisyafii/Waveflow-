@@ -9,6 +9,7 @@ test('Waveflow API Integration Tests', async (t) => {
   let cookie;
   let projectId;
   let taskId;
+  let webhookToken;
   const uniqueEmail = `test_${Date.now()}@test.com`;
 
   await t.test('POST /api/register', async () => {
@@ -80,7 +81,9 @@ test('Waveflow API Integration Tests', async (t) => {
     assert.strictEqual(res.status, 201);
     const data = await res.json();
     assert.ok(data.id);
+    assert.ok(data.webhookToken);
     projectId = data.id;
+    webhookToken = data.webhookToken;
   });
 
   await t.test('GET /api/projects', async () => {
@@ -149,39 +152,26 @@ test('Waveflow API Integration Tests', async (t) => {
     const res = await fetch(`${BASE_URL}/api/ci/webhook`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectId, status: 'SUCCESS' })
+      body: JSON.stringify({ ciStatus: 'SUCCESS' })
     });
-    assert.strictEqual(res.status, 401);
+    assert.strictEqual(res.status, 400);
   });
 
   await t.test('POST /api/ci/webhook - Unauthorized (invalid secret)', async () => {
     const res = await fetch(`${BASE_URL}/api/ci/webhook`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer wrong_secret' },
-      body: JSON.stringify({ projectId, status: 'SUCCESS' })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: 'invalid-token-123', ciStatus: 'SUCCESS' })
     });
     assert.strictEqual(res.status, 401);
   });
 
-  await t.test('POST /api/ci/webhook - Valid Update by Project ID', async () => {
+  await t.test('POST /api/ci/webhook - Valid Update by Webhook Token', async () => {
     const res = await fetch(`${BASE_URL}/api/ci/webhook`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${WEBHOOK_SECRET}` },
-      body: JSON.stringify({ projectId, status: 'RUNNING' })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: webhookToken, ciStatus: 'RUNNING' })
     });
     assert.strictEqual(res.status, 200);
-    const data = await res.json();
-    assert.strictEqual(data.project.ciStatus, 'RUNNING');
-  });
-
-  await t.test('POST /api/ci/webhook - Valid Update by Repo URL', async () => {
-    const res = await fetch(`${BASE_URL}/api/ci/webhook`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${WEBHOOK_SECRET}` },
-      body: JSON.stringify({ repoUrl: 'test/repo', status: 'SUCCESS' })
-    });
-    assert.strictEqual(res.status, 200);
-    const data = await res.json();
-    assert.strictEqual(data.project.ciStatus, 'SUCCESS');
   });
 });

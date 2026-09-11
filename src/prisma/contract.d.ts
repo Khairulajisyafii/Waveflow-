@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'d7739665fb6b2960294e06c8f93e4ed269ca7a5c56bfc97d6c8d5a0e91c0a9b8'>;
+  StorageHashBase<'bcf83432ae3ff8e4f022329c860c98fd8237153797d52b97b54632e3b446076b'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -248,6 +248,7 @@ export type FieldOutputTypes = {
       readonly ownerId: CodecTypes['pg/int4@1']['output'];
       readonly githubRepo: CodecTypes['pg/text@1']['output'] | null;
       readonly ciStatus: CodecTypes['pg/text@1']['output'] | null;
+      readonly webhookToken: CodecTypes['pg/text@1']['output'] | null;
     };
     readonly ProjectMember: {
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -287,6 +288,7 @@ export type FieldInputTypes = {
       readonly ownerId: CodecTypes['pg/int4@1']['input'];
       readonly githubRepo: CodecTypes['pg/text@1']['input'] | null;
       readonly ciStatus: CodecTypes['pg/text@1']['input'] | null;
+      readonly webhookToken: CodecTypes['pg/text@1']['input'] | null;
     };
     readonly ProjectMember: {
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -326,6 +328,7 @@ export type StorageColumnTypes = {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
       readonly ownerId: CodecTypes['pg/int4@1']['output'];
+      readonly webhookToken: CodecTypes['pg/text@1']['output'] | null;
     };
     readonly projectMember: {
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -365,6 +368,7 @@ export type StorageColumnInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
       readonly ownerId: CodecTypes['pg/int4@1']['input'];
+      readonly webhookToken: CodecTypes['pg/text@1']['input'] | null;
     };
     readonly projectMember: {
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -454,9 +458,14 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
                 };
+                readonly webhookToken: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
+              uniques: readonly [{ readonly columns: readonly ['webhookToken'] }];
               indexes: readonly [
                 {
                   readonly name: 'project_ownerId_idx_e2d0c1ef';
@@ -780,6 +789,10 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly webhookToken: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
             };
             readonly relations: {
               readonly members: {
@@ -821,6 +834,7 @@ type ContractBase = Omit<
                 readonly ownerId: { readonly column: 'ownerId' };
                 readonly githubRepo: { readonly column: 'githubRepo' };
                 readonly ciStatus: { readonly column: 'ciStatus' };
+                readonly webhookToken: { readonly column: 'webhookToken' };
               };
             };
           };

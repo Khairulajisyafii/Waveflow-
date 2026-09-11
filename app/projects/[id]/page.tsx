@@ -189,40 +189,32 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
             
             <div className="card">
               <h3>Setup Instructions</h3>
-              <ol style={{ fontSize: '0.875rem', marginTop: '0.75rem', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <li>Go to GitHub Repo <strong>Settings &gt; Secrets and variables &gt; Actions</strong></li>
-                <li>Add Secret: <code style={{ backgroundColor: '#f1f5f9', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>CI_WEBHOOK_SECRET</code></li>
-                <li>
-                  Add Variable: <code style={{ backgroundColor: '#f1f5f9', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>WAVEFLOW_URL</code><br/>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'inline-block', marginTop: '0.25rem' }}>
-                    (Use your main Production Domain without a trailing slash, e.g., <code>https://my-app.vercel.app</code>)
-                  </span>
-                </li>
-                <li>Add this step to your <code>.github/workflows/ci.yml</code> file:</li>
-              </ol>
+              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: 'var(--text-muted)' }}>
+                To track CI/CD status for this project, just paste this step at the bottom of your GitHub Actions workflow (<code>.github/workflows/ci.yml</code>):
+              </p>
               <pre style={{ 
-                backgroundColor: '#f1f5f9', 
+                backgroundColor: 'var(--bg-color)', 
                 padding: '0.75rem', 
                 borderRadius: '0.5rem', 
                 fontSize: '0.75rem', 
                 overflowX: 'auto',
-                marginTop: '0.5rem',
-                color: '#334155',
-                border: '1px solid #e2e8f0'
+                marginTop: '1rem',
+                border: '1px solid var(--border-color)'
               }}>
-{`- name: Notify Waveflow
+{`- name: Update CI Status to Waveflow
   if: always()
   run: |
-    STATUS="FAILED"
-    if [ "\${{ job.status }}" = "success" ]; then STATUS="SUCCESS"; fi
-    curl -X POST "\${{ vars.WAVEFLOW_URL }}/api/ci/webhook" \\
+    curl -X POST https://your-waveflow-domain.vercel.app/api/ci/webhook \\
       -H "Content-Type: application/json" \\
-      -H "Authorization: Bearer \${{ secrets.CI_WEBHOOK_SECRET }}" \\
-      -d "{\\"repoUrl\\":\\"\${{ github.repository }}\\",\\"status\\":\\"$STATUS\\"}"`}
+      -d '{
+        "secret": "${project.webhookToken || 'YOUR_UNIQUE_WEBHOOK_TOKEN'}",
+        "githubRepo": "\${{ github.repository }}",
+        "ciStatus": "\${{ job.status }}"
+      }'`}
               </pre>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem', display: 'flex', gap: '0.35rem', alignItems: 'flex-start' }}>
                 <span style={{ color: '#f59e0b' }}>⚠️</span> 
-                <span><strong>Note:</strong> Ensure Vercel Authentication / Deployment Protection is turned OFF on your Waveflow app, otherwise GitHub Actions will be blocked from sending updates.</span>
+                <span><strong>Note:</strong> Replace <code>https://your-waveflow-domain.vercel.app</code> with your actual Vercel domain. This webhook token is unique to this project and requires no GitHub Secrets configuration!</span>
               </p>
             </div>
           </div>

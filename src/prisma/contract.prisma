@@ -22,6 +22,7 @@ model Project {
   ownerId     Int
   githubRepo  String?
   ciStatus    String?
+  webhookToken String? @unique
 
   owner       User            @relation(fields: [ownerId], references: [id])
   members     ProjectMember[]

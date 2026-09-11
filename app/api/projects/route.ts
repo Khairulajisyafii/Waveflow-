@@ -20,6 +20,7 @@ export async function POST(request: Request) {
       name,
       description: description || null,
       ownerId: userId,
+      webhookToken: crypto.randomUUID()
     });
 
     await db.orm.public.ProjectMember.create({
