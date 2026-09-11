@@ -42,6 +42,35 @@ test('Waveflow API Integration Tests', async (t) => {
     assert.strictEqual(data.user.email, uniqueEmail);
   });
 
+  await t.test('PUT /api/me - Update Name', async () => {
+    const res = await fetch(`${BASE_URL}/api/me`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Cookie': cookie },
+      body: JSON.stringify({ name: 'Updated Name' })
+    });
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.strictEqual(data.user.name, 'Updated Name');
+  });
+
+  await t.test('PUT /api/me - Fail Password Update (Wrong Current)', async () => {
+    const res = await fetch(`${BASE_URL}/api/me`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Cookie': cookie },
+      body: JSON.stringify({ currentPassword: 'wrongpassword', newPassword: 'newpassword123' })
+    });
+    assert.strictEqual(res.status, 400);
+  });
+
+  await t.test('PUT /api/me - Success Password Update', async () => {
+    const res = await fetch(`${BASE_URL}/api/me`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Cookie': cookie },
+      body: JSON.stringify({ currentPassword: 'password', newPassword: 'newpassword123' })
+    });
+    assert.strictEqual(res.status, 200);
+  });
+
   await t.test('POST /api/projects', async () => {
     const res = await fetch(`${BASE_URL}/api/projects`, {
       method: 'POST',

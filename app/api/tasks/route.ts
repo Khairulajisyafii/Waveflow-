@@ -49,9 +49,12 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const projectIdStr = searchParams.get("projectId");
     
+    // If no projectId, return all tasks assigned to the current user
     if (!projectIdStr) {
-      return NextResponse.json({ error: "projectId is required" }, { status: 400 });
+      const myTasks = await db.orm.public.Task.where({ assigneeId: userId }).all();
+      return NextResponse.json(myTasks, { status: 200 });
     }
+    
     const projectId = parseInt(projectIdStr, 10);
 
     const membership = await db.orm.public.ProjectMember.where({ userId, projectId }).first();

@@ -1,45 +1,32 @@
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
-import Link from "next/link";
+import { db } from "../src/prisma/db";
+import ClientNavbar from "./ClientNavbar";
 
 export default async function Navbar() {
   const cookieStore = await cookies();
   const session = cookieStore.get("session")?.value;
   let user = null;
 
-  if (session) {
+  if (session && process.env.SESSION_SECRET) {
     try {
       const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
       const { payload } = await jwtVerify(session, secret);
       if (payload && payload.userId) {
-        user = { name: payload.name || "User", email: payload.email };
+        // Fetch fresh user from DB to get avatarUrl
+        const dbUser = await db.orm.public.User.where({ id: Number(payload.userId) }).first();
+        if (dbUser) {
+          user = { 
+            name: dbUser.name, 
+            email: dbUser.email,
+            avatarUrl: dbUser.avatarUrl || null
+          };
+        }
       }
     } catch {
       // invalid session
     }
   }
 
-  return (
-    <nav className="navbar">
-      <div className="container">
-        <Link href={user ? "/dashboard" : "/"} style={{ fontWeight: 'bold', fontSize: '1.25rem', color: 'var(--text-color)' }}>
-          Waveflow
-        </Link>
-        <div className="nav-links">
-          {user ? (
-            <>
-              <Link href="/dashboard" style={{ color: 'var(--text-muted)' }}>Dashboard</Link>
-              <Link href="/projects" style={{ color: 'var(--text-muted)' }}>Projects</Link>
-              <span style={{ color: 'var(--text-color)', fontWeight: 500 }}>{user.email as string}</span>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="btn btn-outline">Login</Link>
-              <Link href="/register" className="btn">Register</Link>
-            </>
-          )}
-        </div>
-      </div>
-    </nav>
-  );
+  return <ClientNavbar user={user} />;
 }

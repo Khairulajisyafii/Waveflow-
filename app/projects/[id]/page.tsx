@@ -192,8 +192,13 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
               <ol style={{ fontSize: '0.875rem', marginTop: '0.75rem', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <li>Go to GitHub Repo <strong>Settings &gt; Secrets and variables &gt; Actions</strong></li>
                 <li>Add Secret: <code style={{ backgroundColor: '#f1f5f9', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>CI_WEBHOOK_SECRET</code></li>
-                <li>Add Variable: <code style={{ backgroundColor: '#f1f5f9', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>WAVEFLOW_URL</code></li>
-                <li>Add this step to your GitHub Actions workflow:</li>
+                <li>
+                  Add Variable: <code style={{ backgroundColor: '#f1f5f9', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>WAVEFLOW_URL</code><br/>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'inline-block', marginTop: '0.25rem' }}>
+                    (Use your main Production Domain without a trailing slash, e.g., <code>https://my-app.vercel.app</code>)
+                  </span>
+                </li>
+                <li>Add this step to your <code>.github/workflows/ci.yml</code> file:</li>
               </ol>
               <pre style={{ 
                 backgroundColor: '#f1f5f9', 
@@ -215,6 +220,10 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
       -H "Authorization: Bearer \${{ secrets.CI_WEBHOOK_SECRET }}" \\
       -d "{\\"repoUrl\\":\\"\${{ github.repository }}\\",\\"status\\":\\"$STATUS\\"}"`}
               </pre>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem', display: 'flex', gap: '0.35rem', alignItems: 'flex-start' }}>
+                <span style={{ color: '#f59e0b' }}>⚠️</span> 
+                <span><strong>Note:</strong> Ensure Vercel Authentication / Deployment Protection is turned OFF on your Waveflow app, otherwise GitHub Actions will be blocked from sending updates.</span>
+              </p>
             </div>
           </div>
         )}
