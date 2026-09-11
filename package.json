@@ -14,7 +14,7 @@
     "postinstall": "prisma skills sync || exit 0",
     "contract:emit": "prisma contract emit",
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma db migrate --yes && next build",
     "start": "next start",
     "test": "node --test __tests__/api.test.cjs",
     "lint": "eslint ."
