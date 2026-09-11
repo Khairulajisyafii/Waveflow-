@@ -215,7 +215,7 @@ export default function ProjectDetails({ params: paramsPromise }: { params: Prom
         </button>
       </div>
 
-      <div style={{ flexGrow: 1, overflow: 'hidden' }}>
+      <div style={{ flexGrow: 1, overflowY: 'auto', paddingBottom: '2rem' }}>
         {activeTab === 'board' && <KanbanBoard projectId={project.id} />}
         {activeTab === 'members' && (
           <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
