@@ -53,8 +53,8 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
     // Verify current user has admin rights on this project
     const membership = await db.orm.public.ProjectMember.where({ userId, projectId }).first();
-    if (!membership || membership.role !== "ADMIN") {
-      return NextResponse.json({ error: "Only admins can add members" }, { status: 403 });
+    if (!membership || (membership.role !== "ADMIN" && membership.role !== "OWNER")) {
+      return NextResponse.json({ error: "Only admins or owners can add members" }, { status: 403 });
     }
 
     // Find user by email

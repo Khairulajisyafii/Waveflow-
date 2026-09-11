@@ -8,18 +8,18 @@ export default function ClientNavbar({ user }: { user: any }) {
 
   return (
     <nav className="navbar">
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <Link href={user ? "/dashboard" : "/"} style={{ fontWeight: 'bold', fontSize: '1.25rem', color: 'var(--text-color)' }}>
           Waveflow
         </Link>
-        <div className="nav-links" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+        <div className="nav-links" style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           {user ? (
             <>
               <Link href="/dashboard" style={{ color: 'var(--text-muted)' }}>{t('dashboard')}</Link>
               <Link href="/projects" style={{ color: 'var(--text-muted)' }}>{t('projects')}</Link>
               <Link href="/profile" style={{ color: 'var(--text-muted)' }}>{t('profile')}</Link>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderLeft: '1px solid var(--border-color)', paddingLeft: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderLeft: '1px solid var(--border-color)', paddingLeft: '1rem' }}>
                 {user.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
                 ) : (

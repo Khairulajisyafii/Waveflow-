@@ -1,24 +1,32 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import KanbanBoard from "../../../components/KanbanBoard";
+import Link from "next/link";
 
-export default function ProjectDetailPage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function ProjectDetails({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
   const [project, setProject] = useState<any>(null);
+  const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("board");
+  const [activeTab, setActiveTab] = useState<'board'|'integrations'|'members'>('board');
   const [repoInput, setRepoInput] = useState("");
   const [savingRepo, setSavingRepo] = useState(false);
-  const [repoMessage, setRepoMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
+  const [repoMessage, setRepoMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  
+  // Edit Project Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const fetchProjectAndMembers = async () => {
       try {
-        const res = await fetch(`/api/projects/${params.id}`);
+        const { id } = await paramsPromise;
+        const res = await fetch(`/api/projects/${id}`);
         if (!res.ok) {
           router.push("/projects");
           return;
@@ -26,6 +34,15 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
         const data = await res.json();
         setProject(data);
         setRepoInput(data.githubRepo || "");
+        setEditName(data.name || "");
+        setEditDesc(data.description || "");
+
+        // Fetch Members
+        const membersRes = await fetch(`/api/projects/${id}/members`);
+        if (membersRes.ok) {
+           const membersData = await membersRes.json();
+           setMembers(membersData);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -33,8 +50,8 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
       }
     };
     
-    fetchProject();
-  }, [params.id, router]);
+    fetchProjectAndMembers();
+  }, [paramsPromise, router]);
 
   const handleSaveRepo = async () => {
     setRepoMessage(null);
@@ -71,6 +88,51 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
     }
   };
 
+  const handleEditProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingEdit(true);
+    try {
+       const res = await fetch(`/api/projects/${project.id}`, {
+         method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ name: editName, description: editDesc })
+       });
+       if (res.ok) {
+         const data = await res.json();
+         setProject({...project, name: data.name, description: data.description});
+         setIsEditModalOpen(false);
+       } else {
+         alert("Failed to update project");
+       }
+    } catch (err) {
+       console.error(err);
+    } finally {
+       setSavingEdit(false);
+    }
+  };
+
+  const handleInviteMember = async () => {
+    const emailInput = document.getElementById('inviteEmailInput') as HTMLInputElement;
+    if (!emailInput || !emailInput.value) return;
+    const res = await fetch(`/api/projects/${project.id}/members`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: emailInput.value })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert('Member added successfully!');
+      // Refresh members list
+      const membersRes = await fetch(`/api/projects/${project.id}/members`);
+      if (membersRes.ok) {
+        setMembers(await membersRes.json());
+      }
+      emailInput.value = '';
+    } else {
+      alert(data.error || 'Failed to add member');
+    }
+  };
+
   if (loading) {
     return <main className="container"><p>Loading project...</p></main>;
   }
@@ -79,7 +141,7 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
 
   return (
     <main className="container" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 80px)' }}>
-      <div className="page-header" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="page-header" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <Link href="/projects" style={{ color: 'var(--text-muted)' }}>Projects</Link>
@@ -97,16 +159,7 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
           <button 
             className="btn btn-outline" 
             style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
-            onClick={() => {
-              const newName = prompt("Enter new project name:", project.name);
-              if (newName) {
-                fetch(`/api/projects/${project.id}`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ name: newName })
-                }).then(res => res.json()).then(data => setProject({...project, name: data.name}));
-              }
-            }}
+            onClick={() => setIsEditModalOpen(true)}
           >
             Edit
           </button>
@@ -166,8 +219,23 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
         {activeTab === 'board' && <KanbanBoard projectId={project.id} />}
         {activeTab === 'members' && (
           <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <h3 style={{ marginBottom: '1rem' }}>Project Members</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
+              {members.map((m: any) => (
+                <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-color)', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                     <span style={{ fontWeight: 500, fontSize: '0.875rem' }}>{m.name}</span>
+                     <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{m.email}</span>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: m.role === 'OWNER' ? 'var(--primary-color)' : 'var(--border-color)', color: m.role === 'OWNER' ? '#fff' : 'var(--text-color)', borderRadius: '0.25rem', fontWeight: 'bold' }}>
+                    {m.role}
+                  </span>
+                </div>
+              ))}
+            </div>
+
             <h3 style={{ marginBottom: '1rem' }}>Invite Member</h3>
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <input 
                 type="email" 
                 className="form-input" 
@@ -177,22 +245,7 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
               />
               <button 
                 className="btn btn-outline"
-                onClick={async () => {
-                  const emailInput = document.getElementById('inviteEmailInput') as HTMLInputElement;
-                  if (!emailInput || !emailInput.value) return;
-                  const res = await fetch(`/api/projects/${project.id}/members`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: emailInput.value })
-                  });
-                  const data = await res.json();
-                  if (res.ok) {
-                    alert('Member added successfully!');
-                    emailInput.value = '';
-                  } else {
-                    alert(data.error || 'Failed to add member');
-                  }
-                }}
+                onClick={handleInviteMember}
               >
                 Invite
               </button>
@@ -300,6 +353,51 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
           </div>
         )}
       </div>
+
+      {isEditModalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="card" style={{ width: '100%', maxWidth: '500px', backgroundColor: 'var(--card-bg)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <h2>Edit Project</h2>
+              <button onClick={() => setIsEditModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+            </div>
+            
+            <form onSubmit={handleEditProject}>
+              <div className="form-group">
+                <label className="form-label">Project Name</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  value={editName} 
+                  onChange={(e) => setEditName(e.target.value)} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Description (Optional)</label>
+                <textarea 
+                  className="form-input" 
+                  value={editDesc} 
+                  onChange={(e) => setEditDesc(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setIsEditModalOpen(false)} disabled={savingEdit}>Cancel</button>
+                <button type="submit" className="btn" disabled={savingEdit}>
+                  {savingEdit ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
