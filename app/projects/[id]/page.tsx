@@ -334,20 +334,35 @@ export default function ProjectDetails({ params: paramsPromise }: { params: Prom
                 marginTop: '1rem',
                 border: '1px solid var(--border-color)'
               }}>
-{`- name: Update CI Status to Waveflow
-  if: always()
-  run: |
-    curl -X POST https://your-waveflow-domain.vercel.app/api/ci/webhook \\
-      -H "Content-Type: application/json" \\
-      -d '{
-        "secret": "${project.webhookToken || 'YOUR_UNIQUE_WEBHOOK_TOKEN'}",
-        "githubRepo": "\${{ github.repository }}",
-        "ciStatus": "\${{ job.status }}"
-      }'`}
+{`name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main", "master"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # (1) Your tests and build steps go here...
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # (2) Notify Waveflow
+      - name: Update CI Status to Waveflow
+        if: always()
+        run: |
+          curl -X POST \${typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com'}/api/ci/webhook \\
+            -H "Content-Type: application/json" \\
+            -d '{
+              "secret": "${project.webhookToken || 'YOUR_UNIQUE_WEBHOOK_TOKEN'}",
+              "githubRepo": "\${{ github.repository }}",
+              "ciStatus": "\${{ job.status }}"
+            }'`}
               </pre>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem', display: 'flex', gap: '0.35rem', alignItems: 'flex-start' }}>
                 <span style={{ color: 'var(--danger-color)', fontWeight: 'bold' }}>Note:</span> 
-                <span>Replace <code>https://your-waveflow-domain.vercel.app</code> with your actual Vercel domain. This webhook token is unique to this project and requires no GitHub Secrets configuration!</span>
+                <span>This webhook token is unique to this project and requires no GitHub Secrets configuration!</span>
               </p>
             </div>
           </div>
