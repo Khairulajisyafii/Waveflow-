@@ -114,7 +114,7 @@ export default function DashboardPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                       <h3 style={{ margin: 0, color: 'var(--text-color)' }}>{project.name}</h3>
                       {project.githubRepo && (
-                        <span title="GitHub Linked" style={{ fontSize: '1rem' }}>🐙</span>
+                        <span title="GitHub Linked" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>GitHub</span>
                       )}
                     </div>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', lineHeight: 1.4, margin: 0 }}>
@@ -138,7 +138,6 @@ export default function DashboardPage() {
           {myTasks.length === 0 ? (
             <div className="card" style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textAlign: 'center', padding: '2rem 1rem' }}>
               <p>No active tasks assigned to you.</p>
-              <span style={{ fontSize: '2rem', display: 'block', marginTop: '0.5rem' }}>☕</span>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

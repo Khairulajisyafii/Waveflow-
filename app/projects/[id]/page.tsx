@@ -141,6 +141,17 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
         <button 
           style={{ 
             background: 'none', border: 'none', padding: '0.5rem 1rem', cursor: 'pointer',
+            borderBottom: activeTab === 'members' ? '2px solid var(--primary-color)' : '2px solid transparent',
+            color: activeTab === 'members' ? 'var(--primary-color)' : 'var(--text-color)',
+            fontWeight: activeTab === 'members' ? 500 : 400
+          }}
+          onClick={() => setActiveTab('members')}
+        >
+          Members
+        </button>
+        <button 
+          style={{ 
+            background: 'none', border: 'none', padding: '0.5rem 1rem', cursor: 'pointer',
             borderBottom: activeTab === 'integrations' ? '2px solid var(--primary-color)' : '2px solid transparent',
             color: activeTab === 'integrations' ? 'var(--primary-color)' : 'var(--text-color)',
             fontWeight: activeTab === 'integrations' ? 500 : 400
@@ -153,6 +164,44 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
 
       <div style={{ flexGrow: 1, overflow: 'hidden' }}>
         {activeTab === 'board' && <KanbanBoard projectId={project.id} />}
+        {activeTab === 'members' && (
+          <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <h3 style={{ marginBottom: '1rem' }}>Invite Member</h3>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+              <input 
+                type="email" 
+                className="form-input" 
+                placeholder="user@example.com"
+                id="inviteEmailInput"
+                style={{ flexGrow: 1 }}
+              />
+              <button 
+                className="btn btn-outline"
+                onClick={async () => {
+                  const emailInput = document.getElementById('inviteEmailInput') as HTMLInputElement;
+                  if (!emailInput || !emailInput.value) return;
+                  const res = await fetch(`/api/projects/${project.id}/members`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailInput.value })
+                  });
+                  const data = await res.json();
+                  if (res.ok) {
+                    alert('Member added successfully!');
+                    emailInput.value = '';
+                  } else {
+                    alert(data.error || 'Failed to add member');
+                  }
+                }}
+              >
+                Invite
+              </button>
+            </div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+              Users must have a registered Waveflow account with the provided email address to be invited.
+            </p>
+          </div>
+        )}
         {activeTab === 'integrations' && (
           <div className="grid grid-cols-3">
             <div className="card">
@@ -244,8 +293,8 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
       }'`}
               </pre>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem', display: 'flex', gap: '0.35rem', alignItems: 'flex-start' }}>
-                <span style={{ color: '#f59e0b' }}>⚠️</span> 
-                <span><strong>Note:</strong> Replace <code>https://your-waveflow-domain.vercel.app</code> with your actual Vercel domain. This webhook token is unique to this project and requires no GitHub Secrets configuration!</span>
+                <span style={{ color: 'var(--danger-color)', fontWeight: 'bold' }}>Note:</span> 
+                <span>Replace <code>https://your-waveflow-domain.vercel.app</code> with your actual Vercel domain. This webhook token is unique to this project and requires no GitHub Secrets configuration!</span>
               </p>
             </div>
           </div>
