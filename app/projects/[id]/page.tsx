@@ -320,7 +320,7 @@ export default function ProjectDetails({ params: paramsPromise }: { params: Prom
               </div>
             </div>
             
-            <div className="card">
+            <div className="card" style={{ gridColumn: 'span 3' }}>
               <h3>Setup Instructions</h3>
               <p style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: 'var(--text-muted)' }}>
                 To track CI/CD status for this project, just paste this step at the bottom of your GitHub Actions workflow (<code>.github/workflows/ci.yml</code>):
