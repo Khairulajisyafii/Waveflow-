@@ -17,8 +17,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized or Invalid Webhook Token" }, { status: 401 });
     }
 
+    // Map GitHub's lowercase status to Waveflow's expected uppercase format
+    let mappedStatus = ciStatus.toUpperCase();
+    if (mappedStatus === "FAILURE") mappedStatus = "FAILED";
+    if (mappedStatus === "CANCELLED") mappedStatus = "FAILED";
+
     // Update the CI status for this specific project
-    await db.orm.public.Project.where({ id: project.id }).update({ ciStatus });
+    await db.orm.public.Project.where({ id: project.id }).update({ ciStatus: mappedStatus });
 
     // Optionally update the stored githubRepo if it's different and provided
     if (githubRepo && project.githubRepo !== githubRepo) {
