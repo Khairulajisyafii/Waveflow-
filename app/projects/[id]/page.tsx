@@ -186,6 +186,36 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
                 })()}
               </div>
             </div>
+            
+            <div className="card">
+              <h3>Setup Instructions</h3>
+              <ol style={{ fontSize: '0.875rem', marginTop: '0.75rem', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <li>Go to GitHub Repo <strong>Settings &gt; Secrets and variables &gt; Actions</strong></li>
+                <li>Add Secret: <code style={{ backgroundColor: '#f1f5f9', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>CI_WEBHOOK_SECRET</code></li>
+                <li>Add Variable: <code style={{ backgroundColor: '#f1f5f9', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>WAVEFLOW_URL</code></li>
+                <li>Add this step to your GitHub Actions workflow:</li>
+              </ol>
+              <pre style={{ 
+                backgroundColor: '#f1f5f9', 
+                padding: '0.75rem', 
+                borderRadius: '0.5rem', 
+                fontSize: '0.75rem', 
+                overflowX: 'auto',
+                marginTop: '0.5rem',
+                color: '#334155',
+                border: '1px solid #e2e8f0'
+              }}>
+{`- name: Notify Waveflow
+  if: always()
+  run: |
+    STATUS="FAILED"
+    if [ "\${{ job.status }}" = "success" ]; then STATUS="SUCCESS"; fi
+    curl -X POST "\${{ vars.WAVEFLOW_URL }}/api/ci/webhook" \\
+      -H "Content-Type: application/json" \\
+      -H "Authorization: Bearer \${{ secrets.CI_WEBHOOK_SECRET }}" \\
+      -d "{\\"repoUrl\\":\\"\${{ github.repository }}\\",\\"status\\":\\"$STATUS\\"}"`}
+              </pre>
+            </div>
           </div>
         )}
       </div>
