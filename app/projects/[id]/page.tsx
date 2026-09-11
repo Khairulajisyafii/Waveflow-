@@ -79,7 +79,7 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
 
   return (
     <main className="container" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 80px)' }}>
-      <div className="page-header" style={{ marginBottom: '1rem' }}>
+      <div className="page-header" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <Link href="/projects" style={{ color: 'var(--text-muted)' }}>Projects</Link>
@@ -92,6 +92,37 @@ export default function ProjectDetailPage(props: { params: Promise<{ id: string 
               {project.description}
             </p>
           )}
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            className="btn btn-outline" 
+            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+            onClick={() => {
+              const newName = prompt("Enter new project name:", project.name);
+              if (newName) {
+                fetch(`/api/projects/${project.id}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ name: newName })
+                }).then(res => res.json()).then(data => setProject({...project, name: data.name}));
+              }
+            }}
+          >
+            Edit
+          </button>
+          <button 
+            className="btn" 
+            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', backgroundColor: 'var(--danger-color)' }}
+            onClick={async () => {
+              if (confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
+                const res = await fetch(`/api/projects/${project.id}`, { method: 'DELETE' });
+                if (res.ok) router.push('/projects');
+                else alert("Failed to delete project");
+              }
+            }}
+          >
+            Delete
+          </button>
         </div>
       </div>
 
