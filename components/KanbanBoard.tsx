@@ -239,7 +239,7 @@ export default function KanbanBoard({ projectId }: { projectId: number }) {
                         <option value="URGENT">URGENT</option>
                       </select>
                       <div style={{display:'flex', gap: '0.25rem'}}>
-                        <button type="button" onClick={() => setAddingTaskCol(null)} style={{fontSize:'0.75rem', padding:'0.2rem 0.4rem', cursor:'pointer', background:'transparent', border:'none'}}>Cancel</button>
+                        <button type="button" onClick={() => setAddingTaskCol(null)} style={{fontSize:'0.75rem', padding:'0.2rem 0.4rem', cursor:'pointer', background:'transparent', border:'none', color: 'var(--text-color)'}}>Cancel</button>
                         <button type="submit" style={{fontSize:'0.75rem', padding:'0.2rem 0.4rem', cursor:'pointer', background:'var(--primary-color)', color:'white', border:'none', borderRadius:'0.25rem'}}>Add</button>
                       </div>
                     </div>
@@ -308,7 +308,8 @@ export default function KanbanBoard({ projectId }: { projectId: number }) {
                             style={{ 
                               fontSize: '0.65rem', padding: '0.25rem 0.5rem', 
                               background: 'var(--bg-color)', border: '1px solid var(--border-color)',
-                              borderRadius: '0.25rem', cursor: 'pointer', whiteSpace: 'nowrap'
+                              borderRadius: '0.25rem', cursor: 'pointer', whiteSpace: 'nowrap',
+                              color: 'var(--text-color)'
                             }}
                           >
                             → {c}

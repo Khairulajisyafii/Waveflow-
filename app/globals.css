@@ -48,6 +48,7 @@ a:hover {
 button {
   cursor: pointer;
   font-family: inherit;
+  color: inherit;
 }
 
 .btn {
