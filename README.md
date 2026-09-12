@@ -1,18 +1,24 @@
 # Waveflow
 
-Waveflow is a modern, lightweight Agile Project Management and CI/CD visualization platform designed specifically for software engineers. It allows teams to track daily tasks while actively monitoring GitHub Actions pipeline statuses in a centralized dashboard.
+Waveflow is a modern Agile Project Management and CI/CD visualization platform designed specifically for software engineers. It allows teams to track daily tasks while actively monitoring GitHub Actions pipeline statuses in a centralized, real-time dashboard.
 
 ## Core Features
 
-- **Agile Task Management**: Organize workflows using a Kanban-style system. Create tasks, set priorities, and transition them across states (TODO, IN PROGRESS, DONE).
-- **Automated CI/CD Monitoring**: Connect projects directly to your GitHub repositories. Waveflow exposes a dynamic webhook endpoint that listens to GitHub Actions, updating the build status (SUCCESS/FAILED) in real-time on your dashboard.
-- **Team Collaboration**: Invite members to your projects via email with role-based access control (Owner, Admin, Member).
-- **Secure Authentication**: End-to-end secure user management, utilizing Bcrypt for password hashing and JOSE (JSON Web Tokens) for stateless sessions.
-- **Modern Architecture**: Built for the Edge, featuring Dark/Light mode, i18n support (English/Indonesian), and a fully responsive interface.
+### 1. Automated CI/CD Monitoring
+Connect projects directly to your GitHub repositories without complex OAuth setups. Waveflow exposes a dynamic webhook endpoint that listens to GitHub Actions. Whenever a pipeline finishes, the build status (SUCCESS/FAILED) updates in real-time on your Waveflow dashboard. 
+
+### 2. Real-Time Kanban Board
+Organize workflows using a drag-and-drop Kanban-style system. Powered by background short-polling, any task transitions (TODO, IN PROGRESS, REVIEW, DONE) or new tasks added by team members are instantly synchronized across all active clients without requiring a page refresh.
+
+### 3. Role-Based Team Collaboration
+Invite developers to your projects directly via their registered emails. The platform utilizes a robust Role-Based Access Control (RBAC) system, ensuring that only project Owners or Admins can invite new members, while Members can seamlessly collaborate on the shared board.
+
+### 4. Dynamic Theme Switching (Dark Mode)
+Waveflow features a native implementation of Light and Dark themes. The UI is carefully engineered using custom CSS Variables to ensure deep contrast, legibility, and seamless transitions across all components, including modals, dropdowns, and form inputs.
 
 ## Tech Stack
 
-- **Framework**: Next.js 14+ (App Router)
+- **Framework**: Next.js (App Router)
 - **Language**: TypeScript
 - **Database**: PostgreSQL (managed via Prisma Composer `@prisma/composer`)
 - **Authentication**: Custom JWT implementation using `jose`
@@ -20,95 +26,33 @@ Waveflow is a modern, lightweight Agile Project Management and CI/CD visualizati
 
 ## Running Locally
 
-Follow these steps to set up Waveflow on your local machine:
-
-### 1. Prerequisites
-
-- Node.js (v18 or higher)
-- A PostgreSQL database (e.g., Neon, Supabase, or local)
-
-### 2. Clone the Repository
-
+### 1. Setup Environment
+Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/Khairulajisyafii/Waveflow-.git
 cd Waveflow-
-```
-
-### 3. Install Dependencies
-
-```bash
 npm install
 ```
 
-### 4. Configure Environment Variables
-
+### 2. Configure Environment Variables
 Create a `.env` file in the root directory:
-
 ```env
-# Your PostgreSQL connection string
 DATABASE_URL="postgresql://user:password@localhost:5432/waveflow"
-
-# Secret key for JWT sessions (Minimum 32 characters)
 SESSION_SECRET="your-super-secret-session-key"
 ```
 
-### 5. Database Setup (Prisma)
-
+### 3. Initialize Database
 Synchronize the Prisma schema and run migrations:
-
 ```bash
 npm run contract:emit
 npx prisma db migrate --yes
 ```
 
-### 6. Start the Development Server
-
+### 4. Run Development Server
 ```bash
 npm run dev
 ```
-
 Visit `http://localhost:3000` to view the application.
-
-## GitHub Actions Integration (CI/CD)
-
-Waveflow serves as a centralized dashboard for your pipeline health. To connect a GitHub repository:
-
-1. Create a project in Waveflow and navigate to the **Integrations** tab.
-2. Enter your repository name (e.g., `owner/repo`).
-3. Copy the dynamically generated YAML configuration provided in the dashboard.
-4. Paste the configuration into your repository's `.github/workflows/ci.yml` file.
-
-Example Webhook Integration:
-
-```yaml
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches: ["main", "master"]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # Execute your tests and build commands here
-
-      - name: Update CI Status to Waveflow
-        if: always()
-        run: |
-          curl -X POST https://your-waveflow-domain.vercel.app/api/ci/webhook \
-            -H "Content-Type: application/json" \
-            -d '{
-              "secret": "YOUR_PROJECT_UNIQUE_UUID",
-              "githubRepo": "${{ github.repository }}",
-              "ciStatus": "${{ job.status }}"
-            }'
-```
-
-*Note: The Waveflow dashboard automatically generates the exact payload with your project's unique token. No GitHub Secrets configuration is required.*
 
 ---
 
