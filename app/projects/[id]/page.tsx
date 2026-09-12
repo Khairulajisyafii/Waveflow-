@@ -235,17 +235,18 @@ export default function ProjectDetails({ params: paramsPromise }: { params: Prom
             </div>
 
             <h3 style={{ marginBottom: '1rem' }}>Invite Member</h3>
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <input 
                 type="email" 
                 className="form-input" 
                 placeholder="user@example.com"
                 id="inviteEmailInput"
-                style={{ flexGrow: 1 }}
+                style={{ flexGrow: 1, minWidth: '200px' }}
               />
               <button 
                 className="btn btn-outline"
                 onClick={handleInviteMember}
+                style={{ whiteSpace: 'nowrap' }}
               >
                 Invite
               </button>
@@ -263,7 +264,7 @@ export default function ProjectDetails({ params: paramsPromise }: { params: Prom
                 Link a repository to track its CI/CD status.
               </p>
               
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <input 
                   type="text" 
                   className="form-input" 
@@ -271,11 +272,13 @@ export default function ProjectDetails({ params: paramsPromise }: { params: Prom
                   value={repoInput}
                   onChange={(e) => setRepoInput(e.target.value)}
                   disabled={savingRepo}
+                  style={{ flexGrow: 1, minWidth: '200px' }}
                 />
                 <button 
                   className="btn btn-outline" 
                   onClick={handleSaveRepo}
                   disabled={savingRepo}
+                  style={{ whiteSpace: 'nowrap' }}
                 >
                   {savingRepo ? 'Saving...' : 'Save'}
                 </button>
