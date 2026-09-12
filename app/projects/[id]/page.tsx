@@ -32,10 +32,17 @@ export default function ProjectDetails({ params: paramsPromise }: { params: Prom
           return;
         }
         const data = await res.json();
-        setProject(data);
-        setRepoInput(data.githubRepo || "");
-        setEditName(data.name || "");
-        setEditDesc(data.description || "");
+        
+        // Use functional state update to prevent overwriting local state changes (like input fields) if they are being edited
+        setProject((prev: any) => {
+          // Only initialize input fields if we didn't have previous data (first load)
+          if (!prev) {
+            setRepoInput(data.githubRepo || "");
+            setEditName(data.name || "");
+            setEditDesc(data.description || "");
+          }
+          return data;
+        });
 
         // Fetch Members
         const membersRes = await fetch(`/api/projects/${id}/members`);
@@ -51,6 +58,13 @@ export default function ProjectDetails({ params: paramsPromise }: { params: Prom
     };
     
     fetchProjectAndMembers();
+    
+    // Set up polling for real-time updates (every 5 seconds)
+    const intervalId = setInterval(() => {
+      fetchProjectAndMembers();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
   }, [paramsPromise, router]);
 
   const handleSaveRepo = async () => {

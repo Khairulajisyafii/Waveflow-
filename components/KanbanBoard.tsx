@@ -41,6 +41,13 @@ export default function KanbanBoard({ projectId }: { projectId: number }) {
 
   useEffect(() => {
     fetchData();
+    
+    // Set up polling for real-time updates (every 5 seconds)
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 

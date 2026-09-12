@@ -47,6 +47,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData();
+    
+    // Polling for real-time dashboard updates
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 5000);
+    
+    return () => clearInterval(intervalId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
